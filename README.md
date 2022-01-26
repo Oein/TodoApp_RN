@@ -13,11 +13,11 @@
 <td>
 <img src="https://github.com/Oein/TodoApp_RN/raw/main/ScreenShots/img3.png" />
 </td>
-<td>
-<img src="https://github.com/Oein/TodoApp_RN/raw/main/ScreenShots/Video.gif" />
-</td>
 </tr>
 </table>
+
+# Using Video
+<img src="https://github.com/Oein/TodoApp_RN/raw/main/ScreenShots/Video.gif" />
 
 # Release
 ## - V1
