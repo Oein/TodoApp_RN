@@ -160,6 +160,7 @@ export default function App() {
                       title="Make Folder"
                       onPress={() => {
                         let newTodoList = {...todoList}
+                        workInputText = " " + workInputText;
                         newTodoList["WorkGroups"].push(workInputText);
                         SetTodoList(newTodoList);
                         SetopenAddToDoWindow(false);
