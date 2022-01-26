@@ -1,5 +1,5 @@
 # Todo App
-### A Todo App that is made by [@Oein](https://github.com/Oein) with React Native
+### A Todo App that is made by [@Oein](https://github.com/Oein) with [React Native](https://www.npmjs.com/package/react-native)
 
 # Screenshots
 <table>
