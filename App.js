@@ -132,7 +132,7 @@ export default function App() {
           <View style={styles.addTodoWindow}>
             <View style={styles.addWorkView}>
               <View style={styles.addWorkViewSpace}></View>
-              <TextInput maxLength={(screenWidth - 80) / 12} style={styles.input} placeholder="Put Name Here" onChangeText={SetWorkInputText}></TextInput>
+              <TextInput value={workInputText} maxLength={(screenWidth - 80) / 12} style={styles.input} placeholder="Put Name Here" onChangeText={SetWorkInputText}></TextInput>
               <View style={styles.addWorkViewSpace}></View>
             </View>
             <View>
@@ -277,6 +277,7 @@ export default function App() {
                         <View style={{width: 10}}></View>
                           <Pressable
                             onPress={() => {
+                              SetWorkInputText(todoList["WorkGroups"][key])
                               SetEditTodoKey(key)
                               SetopenAddToDoWindow(true)
                               SetEditingIsFolder(true)
@@ -329,6 +330,7 @@ export default function App() {
                             onPress={() => {
                               SetEditTodoKey(key)
                               SetopenAddToDoWindow(true)
+                              SetWorkInputText(todoList[key]["name"])
                             }}
                           >
                             <Feather name="edit" size={22} color="black" />
