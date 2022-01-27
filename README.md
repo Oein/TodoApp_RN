@@ -21,7 +21,7 @@
 
 # Release
 ## - V1
-You can download apk file at [Release/V1](https://github.com/Oein/TodoApp_RN/releases)
+You can download apk file at [@Oein/TodoApp_RN/Releases](https://github.com/Oein/TodoApp_RN/releases)
 
 No ios file.
 
