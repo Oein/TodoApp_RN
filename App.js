@@ -16,6 +16,8 @@ export default function App() {
   let [todoList , SetTodoList] = useState({"WorkGroups":[]});
   let [workInputText , SetWorkInputText] = useState('');
   let [workGroup , SetWorkGroup] = useState('');
+  let [editTodoKey , SetEditTodoKey] = useState('');
+  let [editing_is_folder, SetEditingIsFolder] = useState(false);
 
   function arrayRemove(arr, value) { 
     return arr.filter(function(ele){ 
@@ -26,7 +28,6 @@ export default function App() {
   let save = async (th) => {
     try {
       SetWorkInputText('');
-      console.log("Going to Save : " , th);
       await AsyncStorage.setItem('@todoList', JSON.stringify(th));
       await AsyncStorage.setItem('@workGroup', JSON.stringify(th));
     } catch (e){
@@ -41,12 +42,6 @@ export default function App() {
             "text":"Save again",
             "onPress":save,
           },
-          {
-            "text":"See Error",
-            "onPress":() => {
-              console.log(e);
-            }
-          }
         ]
       )
     }
@@ -55,7 +50,6 @@ export default function App() {
   let load = async () => {
     try {
       const d = JSON.parse(await AsyncStorage.getItem('@todoList'));
-      console.log(d);
       if(d != null){
         SetTodoList(d);
       }else{
@@ -95,6 +89,8 @@ export default function App() {
                   onPress={() => {
                     SetWorkGroup("");
                     SetWorkInputText("");
+                    SetEditTodoKey("");
+                    SetEditingIsFolder(false);
                   }}
                 >
                   <Fontisto name="angle-left" size={18} color="gray" />
@@ -105,11 +101,13 @@ export default function App() {
         </View>
         <View style={styles.titleRow}>
           <View style={styles.titleRowSpace}></View>
-          <Text style={styles.title}>{workGroup == "" ? "Todo List" : workGroup}</Text>
+          <Text style={styles.title}>{editTodoKey != "" ? (editing_is_folder ? "Edit Folder Name" : "Edit Todo Name" ) : workGroup == "" ? "Todo List" : workGroup}</Text>
           <View style={styles.titleRowAddWork}>
             <View style={styles.titleRowAddWorkSpace}></View>
             <Pressable style={styles.titleRowAddWorkAdd} onPress={() => {
+              if(openedAddTodoWindow) SetEditTodoKey("");
               SetopenAddToDoWindow(!openedAddTodoWindow);
+              SetEditingIsFolder(false);
             }}>
               {
                 openedAddTodoWindow ? (
@@ -118,7 +116,6 @@ export default function App() {
                   <Fontisto name="plus-a" size={18}  color="black" />
                 )
               }
-              
             </Pressable>
             <View style={styles.titleRowAddWorkSpace}></View>
           </View>
@@ -135,45 +132,92 @@ export default function App() {
           <View style={styles.addTodoWindow}>
             <View style={styles.addWorkView}>
               <View style={styles.addWorkViewSpace}></View>
-              <TextInput style={styles.input} placeholder="Put Name Here" onChangeText={SetWorkInputText}></TextInput>
+              <TextInput maxLength={(screenWidth - 80) / 12} style={styles.input} placeholder="Put Name Here" onChangeText={SetWorkInputText}></TextInput>
               <View style={styles.addWorkViewSpace}></View>
             </View>
-            <View style={[styles.rowView , styles.alignCenter]}>
-              <AntDesign name="addfile" size={24} color="black" />
-                <Pressable
-                  title="Make Todo"
-                  onPress={async () => {
-                    let newTodoList = {...todoList}
-                    newTodoList[new Date().toString()] = {"id":new Date().toString(),"workGroup":workGroup,"name":workInputText,"done":false};
-                    SetTodoList(newTodoList);
-                    SetopenAddToDoWindow(false);
-                    save(newTodoList)
-                  }}
-                >
-                  <Text style={{color: "#3478F6",fontSize: 20}}> Make Todo </Text>
-                </Pressable>
+            <View>
               {
-                workGroup == "" ? (
+                editTodoKey == "" ? (
                   <View style={[styles.rowView , styles.alignCenter]}>
-                    <AntDesign name="addfolder" size={24} color="black" />
+                    <AntDesign name="addfile" size={24} color="black" />
                     <Pressable
-                      title="Make Folder"
-                      onPress={() => {
+                      title="Make Todo"
+                      onPress={async () => {
                         let newTodoList = {...todoList}
-                        workInputText = " " + workInputText;
-                        newTodoList["WorkGroups"].push(workInputText);
+                        newTodoList[new Date().toString()] = {"id":new Date().toString(),"workGroup":workGroup,"name":workInputText,"done":false};
                         SetTodoList(newTodoList);
                         SetopenAddToDoWindow(false);
                         save(newTodoList)
                       }}
-                    > 
-                      <Text style={{color: "#3478F6",fontSize: 20}}> Make Folder </Text>
+                    >
+                    <Text style={{color: "#3478F6",fontSize: 20}}> Make Todo </Text>
+                    </Pressable>
+                    {
+                      workGroup == "" ? (
+                        <View style={[styles.rowView , styles.alignCenter]}>
+                          <AntDesign name="addfolder" size={24} color="black" />
+                          <Pressable
+                            title="Make Folder"
+                            onPress={() => {
+                              let newTodoList = {...todoList}
+                            workInputText = " " + workInputText;
+                              newTodoList["WorkGroups"].push(workInputText);
+                              SetTodoList(newTodoList);
+                              SetopenAddToDoWindow(false);
+                              SetEditTodoKey("");
+                              save(newTodoList)
+                            }}
+                          > 
+                            <Text style={{color: "#3478F6",fontSize: 20}}> Make Folder </Text>
+                          </Pressable>
+                        </View>
+                      ) : null
+                    }
+                  </View>
+                ) : (
+                  <View style={[styles.alignCenter]}>
+                    <Pressable 
+                      style={[styles.rowView , styles.alignCenter]}
+                      onPress={() => {
+                        if(editing_is_folder){
+                          let newTodoList = {...todoList};
+                          if(todoList["WorkGroups"].includes(" " + workInputText)){
+                            Alert.alert("This Folder name is already exist");
+                          }else{
+                            Object.keys(newTodoList).map(kkk => {
+                              if(kkk == "WorkGroups") return;
+                              if(newTodoList[kkk]["workGroup"] == todoList["WorkGroups"][editTodoKey]){
+                                newTodoList[kkk]["workGroup"] = " " + workInputText;
+                              }
+                            });
+
+                            newTodoList["WorkGroups"][editTodoKey] = " " + workInputText;
+
+                            SetTodoList(newTodoList);
+                            SetopenAddToDoWindow(false);
+                            SetWorkGroup("");
+                            SetWorkInputText("");
+                            SetEditTodoKey("");
+                            SetEditingIsFolder(false);
+                            save(newTodoList)
+                          }
+                        }else{
+                          let newTodoList = {...todoList};
+                          newTodoList[editTodoKey]["name"] = workInputText;
+                          SetTodoList(newTodoList);
+                          SetopenAddToDoWindow(false);
+                          SetEditTodoKey("");
+                          save(newTodoList)
+                        }
+                      }}
+                    >
+                      <Feather name="edit" size={24} color="black" />
+                      <Text style={{fontSize: 20 , color: "#3478F6"}}>  Edit {editing_is_folder ? "Folder" : "Todo"} Name</Text>
                     </Pressable>
                   </View>
-                ) : null
+                )
               }
-            </View>
-            
+            </View>  
             <View style={styles.addTodoWindowSpace}></View>
           </View>
         ) : (
@@ -230,6 +274,16 @@ export default function App() {
                           >
                             <Fontisto name="trash" size={22} color="black" />
                         </Pressable>
+                        <View style={{width: 10}}></View>
+                          <Pressable
+                            onPress={() => {
+                              SetEditTodoKey(key)
+                              SetopenAddToDoWindow(true)
+                              SetEditingIsFolder(true)
+                            }}
+                          >
+                            <Feather name="edit" size={22} color="black" />
+                          </Pressable>
                       </View>
                     )
                   }) : null
@@ -270,6 +324,15 @@ export default function App() {
                               </Pressable>
                             ) : null
                           }
+                          <View style={{width: 10}}></View>
+                          <Pressable
+                            onPress={() => {
+                              SetEditTodoKey(key)
+                              SetopenAddToDoWindow(true)
+                            }}
+                          >
+                            <Feather name="edit" size={22} color="black" />
+                          </Pressable>
                         </View>
                       )
                     }else{
