@@ -23,7 +23,7 @@
 ## - V1
 You can download apk file at [@Oein/TodoApp_RN/Releases](https://github.com/Oein/TodoApp_RN/releases)
 
-No ios file.
+No ios file. (Because I don't have apple developer id)
 
 # Build
 ```sh
